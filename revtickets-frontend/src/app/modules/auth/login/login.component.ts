@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -7,6 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { Inject } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -15,7 +17,7 @@ import { AuthService } from '../../../core/services/auth.service';
   imports: [
     CommonModule, ReactiveFormsModule, RouterModule,
     MatCardModule, MatFormFieldModule, MatInputModule, 
-    MatButtonModule, MatSnackBarModule
+    MatButtonModule, MatSnackBarModule, MatIconModule
   ],
   template: `
     <div class="login-container">
@@ -47,6 +49,22 @@ import { AuthService } from '../../../core/services/auth.service';
             <button mat-raised-button color="primary" type="submit" 
                     class="full-width" [disabled]="loginForm.invalid || isLoading">
               {{isLoading ? 'Logging in...' : 'Login'}}
+            </button>
+
+            <div class="divider">
+              <span>OR</span>
+            </div>
+
+            <button mat-raised-button type="button" class="google-btn" (click)="loginWithGoogle()">
+              <span class="google-btn-content">
+                <svg width="18" height="18" viewBox="0 0 18 18">
+                  <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+                  <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+                  <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/>
+                  <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z"/>
+                </svg>
+                <span>Sign in with Google</span>
+              </span>
             </button>
           </form>
         </mat-card-content>
@@ -164,6 +182,57 @@ import { AuthService } from '../../../core/services/auth.service';
       cursor: not-allowed !important;
       transform: none !important;
     }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 24px 0;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .divider span {
+      padding: 0 16px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .google-btn {
+      width: 100% !important;
+      height: 48px !important;
+      background: white !important;
+      color: #444 !important;
+      border: 1px solid #ddd !important;
+      padding: 0 !important;
+      font-weight: 500 !important;
+      font-size: 15px !important;
+      border-radius: var(--radius-md) !important;
+    }
+
+    .google-btn-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      height: 100%;
+    }
+
+    .google-btn svg {
+      flex-shrink: 0;
+    }
+
+    .google-btn:hover {
+      background: #f8f8f8 !important;
+      border-color: #ccc !important;
+    }
     
     mat-card-actions {
       padding: 0 40px 40px;
@@ -217,7 +286,7 @@ import { AuthService } from '../../../core/services/auth.service';
     }
   `]
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
 
@@ -231,6 +300,17 @@ export class LoginComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
+  }
+
+  ngOnInit(): void {
+    const hash = window.location.hash;
+    if (hash) {
+      const params = new URLSearchParams(hash.substring(1));
+      const idToken = params.get('id_token');
+      if (idToken) {
+        this.handleGoogleCallback(idToken);
+      }
+    }
   }
 
   onSubmit(): void {
@@ -248,5 +328,30 @@ export class LoginComponent {
         }
       });
     }
+  }
+
+  loginWithGoogle(): void {
+    const clientId = '1027193563356-ta6hhmqco0f1tbk95ljr671754odkh1q.apps.googleusercontent.com';
+    const redirectUri = 'http://localhost:4200/login';
+    const scope = 'profile email';
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token id_token&scope=${scope}&nonce=${Date.now()}`;
+    window.location.href = authUrl;
+  }
+
+  handleGoogleCallback(idToken: string): void {
+    this.isLoading = true;
+    this.authService.googleLogin(idToken).subscribe({
+      next: (response) => {
+        window.history.replaceState({}, document.title, '/login');
+        this.snackBar.open('Google login successful!', 'Close', { duration: 3000 });
+        this.router.navigate(['/']);
+      },
+      error: (error) => {
+        window.history.replaceState({}, document.title, '/login');
+        const message = error.error?.message || 'Google login failed';
+        this.snackBar.open(message, 'Close', { duration: 5000 });
+        this.isLoading = false;
+      }
+    });
   }
 }

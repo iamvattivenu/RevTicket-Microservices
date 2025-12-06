@@ -11,6 +11,11 @@ import com.revtickets.repository.mysql.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import java.util.Collections;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -112,5 +117,44 @@ public class AuthService {
         
         resetToken.setUsed(true);
         tokenRepository.save(resetToken);
+    }
+
+    public Map<String, Object> googleLogin(String idTokenString) {
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                    .setAudience(Collections.singletonList("1027193563356-ta6hhmqco0f1tbk95ljr671754odkh1q.apps.googleusercontent.com"))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken != null) {
+                GoogleIdToken.Payload payload = idToken.getPayload();
+                String email = payload.getEmail();
+                String name = (String) payload.get("name");
+
+                User user = userRepository.findByEmail(email).orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setEmail(email);
+                    newUser.setName(name);
+                    newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                    newUser.setRole(User.Role.USER);
+                    return userRepository.save(newUser);
+                });
+
+                if (user.getIsBlocked() != null && user.getIsBlocked()) {
+                    throw new UnauthorizedException("Your account has been blocked. Please contact support.");
+                }
+
+                String token = jwtTokenUtil.generateToken(user.getEmail(), user.getRole().name());
+                
+                Map<String, Object> response = new HashMap<>();
+                response.put("token", token);
+                response.put("user", user);
+                return response;
+            } else {
+                throw new UnauthorizedException("Invalid Google token");
+            }
+        } catch (Exception e) {
+            throw new UnauthorizedException("Google authentication failed: " + e.getMessage());
+        }
     }
 }

@@ -72,4 +72,9 @@ export class AuthService {
   resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/auth/reset-password`, { token, newPassword });
   }
+
+  googleLogin(idToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/google`, { token: idToken })
+      .pipe(tap(response => this.setCurrentUser(response)));
+  }
 }

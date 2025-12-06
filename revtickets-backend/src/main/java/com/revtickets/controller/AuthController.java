@@ -37,4 +37,9 @@ public class AuthController {
         authService.resetPasswordWithToken(request.get("token"), request.get("newPassword"));
         return ResponseEntity.ok(Map.of("message", "Password has been reset successfully"));
     }
+
+    @PostMapping("/google")
+    public ResponseEntity<Map<String, Object>> googleLogin(@RequestBody Map<String, String> request) {
+        return ResponseEntity.ok(authService.googleLogin(request.get("token")));
+    }
 }
