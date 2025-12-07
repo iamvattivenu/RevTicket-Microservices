@@ -17,7 +17,6 @@ export const appConfig: ApplicationConfig = {
       provide: 'SocialAuthServiceConfig',
       useValue: {
         autoLogin: false,
-        lang: 'en',
         providers: [
           {
             id: GoogleLoginProvider.PROVIDER_ID,
@@ -27,7 +26,7 @@ export const appConfig: ApplicationConfig = {
         onError: (err) => {
           console.error(err);
         }
-      } as SocialAuthServiceConfig
+      } as SocialAuthServiceConfig,
     }
   ]
 };
