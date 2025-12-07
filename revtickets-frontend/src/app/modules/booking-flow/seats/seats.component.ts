@@ -97,85 +97,107 @@ import { Subscription } from 'rxjs';
   `,
   styles: [`
     .seats-container {
-      padding: 20px;
-      max-width: 1000px;
+      padding: 80px 20px 20px;
+      max-width: 100%;
       margin: 0 auto;
       background: var(--primary-bg);
       min-height: 100vh;
     }
-    .screen-section { text-align: center; margin-bottom: 30px; }
+    .screen-section { text-align: center; margin-bottom: 40px; }
     .screen {
-      background: var(--card-bg);
-      color: var(--text-primary);
-      padding: 12px 40px;
-      border-radius: var(--radius-md);
+      background: linear-gradient(180deg, #444 0%, #222 100%);
+      color: #fff;
+      padding: 15px 200px;
+      border-radius: 0 0 50% 50%;
       display: inline-block;
-      font-weight: 600;
-      margin-bottom: 24px;
-      border: 1px solid var(--border-color);
-      font-size: 14px;
-      box-shadow: var(--shadow-md);
+      font-weight: 700;
+      margin-bottom: 30px;
+      font-size: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      letter-spacing: 8px;
     }
 
     .seat-layout {
       margin-bottom: 24px;
       background: var(--card-bg);
-      padding: 24px;
+      padding: 40px;
       border-radius: var(--radius-lg);
       border: 1px solid var(--border-color);
       box-shadow: var(--shadow-md);
+      max-width: 1400px;
+      margin: 0 auto 24px;
     }
     .category-section {
-      margin-bottom: 30px;
+      margin-bottom: 40px;
     }
     .category-header {
-      padding: 12px 0;
+      padding: 16px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border-color);
     }
     .category-header h3 {
       margin: 0;
       color: var(--text-primary);
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 18px;
+      font-weight: 700;
     }
     .available-count {
       color: #4caf50;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 15px;
+      font-weight: 600;
     }
     .category-rows {
-      padding: 0;
+      padding: 20px 0;
     }
-    .seat-row { display: flex; align-items: center; margin-bottom: 10px; }
-    .row-label { width: 30px; font-weight: bold; text-align: center; }
-    .seats { display: flex; gap: 5px; margin-left: 20px; }
-    .budget-layout { margin-left: 40px; }
-    .budget-layout .seat:nth-child(4) { margin-right: 40px; }
-    .budget-layout .seat:nth-child(17) { margin-right: 40px; }
-    .budget-layout .seat:nth-child(21) { margin-right: 40px; }
-    .silver-layout { margin-left: 40px; }
-    .silver-layout .seat:nth-child(5) { margin-right: 20px; }
-    .silver-layout .seat:nth-child(18) { margin-right: 20px; }
-    .gold-layout .seat:nth-child(4) { margin-right: 20px; }
-    .gold-layout .seat:nth-child(12) { margin-right: 20px; }
-    .gold-layout .seat:nth-child(20) { margin-right: 20px; }
+    .seat-row { 
+      display: flex; 
+      align-items: center; 
+      margin-bottom: 14px;
+      justify-content: center;
+    }
+    .row-label { 
+      width: 40px; 
+      font-weight: 700; 
+      text-align: center;
+      font-size: 16px;
+      color: var(--text-primary);
+    }
+    .seats { 
+      display: flex; 
+      gap: 10px;
+      margin-left: 30px;
+    }
+    .seats .seat:nth-child(3) { margin-right: 40px; }
+    .seats .seat:nth-child(6) { margin-right: 40px; }
     .seat {
-      width: 28px;
-      height: 28px;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
+      width: 42px;
+      height: 42px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px 8px 0 0;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 10px;
-      font-weight: 500;
-      transition: all var(--transition-fast);
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.2s ease;
       background: var(--card-bg);
       color: var(--text-primary);
+      position: relative;
+    }
+    .seat::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 4px;
+      background: inherit;
+      border-radius: 0 0 4px 4px;
     }
     .seat.available {
       background: var(--success-color);
