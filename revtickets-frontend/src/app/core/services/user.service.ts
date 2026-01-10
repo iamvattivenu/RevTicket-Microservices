@@ -13,10 +13,17 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   updateProfile(user: User): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/users/profile`, user);
+    return this.http.put<User>(`${this.apiUrl}/api/users/profile`, user);
   }
 
   getUserProfile(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/users/profile`);
+    return this.http.get<User>(`${this.apiUrl}/api/users/profile`);
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/api/users/change-password`, {
+      currentPassword,
+      newPassword
+    });
   }
 }

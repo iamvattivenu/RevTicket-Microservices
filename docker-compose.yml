@@ -8,9 +8,9 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: revtickets
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     networks:
       - revtickets-network
     healthcheck:
@@ -19,13 +19,13 @@ services:
       timeout: 5s
       retries: 5
 
-  mongo:
+  mongodb:
     image: mongo:7.0
-    container_name: revtickets-mongo
+    container_name: revtickets-mongodb
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db
+      - mongodb-data:/data/db
     networks:
       - revtickets-network
     healthcheck:
@@ -34,29 +34,184 @@ services:
       timeout: 5s
       retries: 5
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: revtickets-app
+  consul:
+    image: consul:1.15
+    container_name: revtickets-consul
     ports:
-      - "4200:80"
-      - "8081:8080"
+      - "8500:8500"
+    command: agent -server -ui -bootstrap-expect=1 -client=0.0.0.0
+    networks:
+      - revtickets-network
+    healthcheck:
+      test: ["CMD", "consul", "members"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api-gateway:
+    build:
+      context: ./revtickets-microservices/api-gateway
+      dockerfile: Dockerfile
+    container_name: revtickets-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_PORT: 8080
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_CLOUD_GATEWAY_GLOBALCORS_CORS-CONFIGURATIONS_[/**]_ALLOWEDORIGINS: "http://localhost:4200"
+    depends_on:
+      consul:
+        condition: service_healthy
+    networks:
+      - revtickets-network
+    restart: on-failure
+
+  auth-service:
+    build:
+      context: ./revtickets-microservices/auth-service
+      dockerfile: Dockerfile
+    container_name: revtickets-auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revtickets
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
     depends_on:
       mysql:
         condition: service_healthy
-      mongo:
+      consul:
         condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revtickets?createDatabaseIfNotExist=true
-      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/revtickets
     networks:
       - revtickets-network
+    restart: on-failure
 
-volumes:
-  mysql_data:
-  mongo_data:
+  event-service:
+    build:
+      context: ./revtickets-microservices/event-service
+      dockerfile: Dockerfile
+    container_name: revtickets-event-service
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revtickets
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    depends_on:
+      mysql:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    networks:
+      - revtickets-network
+    restart: on-failure
+
+  booking-service:
+    build:
+      context: ./revtickets-microservices/booking-service
+      dockerfile: Dockerfile
+    container_name: revtickets-booking-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revtickets
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    depends_on:
+      mysql:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    networks:
+      - revtickets-network
+    restart: on-failure
+
+  notification-service:
+    build:
+      context: ./revtickets-microservices/notification-service
+      dockerfile: Dockerfile
+    container_name: revtickets-notification-service
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/revtickets_notifications
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    networks:
+      - revtickets-network
+    restart: on-failure
+
+  payment-service:
+    build:
+      context: ./revtickets-microservices/payment-service
+      dockerfile: Dockerfile
+    container_name: revtickets-payment-service
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/revtickets
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    depends_on:
+      mysql:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    networks:
+      - revtickets-network
+    restart: on-failure
+
+  review-service:
+    build:
+      context: ./revtickets-microservices/review-service
+      dockerfile: Dockerfile
+    container_name: revtickets-review-service
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/revtickets_reviews
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    networks:
+      - revtickets-network
+    restart: on-failure
+
+  frontend:
+    build:
+      context: ./revtickets-frontend
+      dockerfile: Dockerfile
+    container_name: revtickets-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - revtickets-network
+    restart: on-failure
 
 networks:
   revtickets-network:
     driver: bridge
+
+volumes:
+  mysql-data:
+  mongodb-data:

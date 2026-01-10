@@ -1,0 +1,8 @@
+target/classes
+target/test-classes
+.git
+.gitignore
+*.md
+.mvn
+mvnw
+mvnw.cmd

@@ -13,27 +13,30 @@ export class BookingService {
   constructor(private http: HttpClient) {}
 
   createBooking(bookingData: BookingRequest): Observable<Booking> {
-    return this.http.post<Booking>(`${this.apiUrl}/bookings`, bookingData);
+    return this.http.post<Booking>(`${this.apiUrl}/api/bookings`, bookingData);
   }
 
   getUserBookings(): Observable<Booking[]> {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    return this.http.get<Booking[]>(`${this.apiUrl}/bookings/user/${user.id}`);
+    const userId = user.id || user.userId;
+    console.log('User from localStorage:', user);
+    console.log('Using userId:', userId);
+    return this.http.get<Booking[]>(`${this.apiUrl}/api/bookings/user/${userId}`);
   }
 
   getBookingById(id: string): Observable<Booking> {
-    return this.http.get<Booking>(`${this.apiUrl}/bookings/${id}`);
+    return this.http.get<Booking>(`${this.apiUrl}/api/bookings/${id}`);
   }
 
   cancelBooking(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/bookings/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/api/bookings/${id}`);
   }
 
   getAllBookings(): Observable<Booking[]> {
-    return this.http.get<Booking[]>(`${this.apiUrl}/bookings`);
+    return this.http.get<Booking[]>(`${this.apiUrl}/api/bookings`);
   }
 
   deleteBooking(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/bookings/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/api/bookings/${id}`);
   }
 }

@@ -18,12 +18,12 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, credentials)
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/auth/login`, credentials)
       .pipe(tap(response => this.setCurrentUser(response)));
   }
 
   register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/signup`, userData)
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/auth/signup`, userData)
       .pipe(tap(response => this.setCurrentUser(response)));
   }
 
@@ -66,15 +66,15 @@ export class AuthService {
   }
 
   forgotPassword(email: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/forgot-password`, { email });
+    return this.http.post<{ message: string }>(`${this.apiUrl}/api/auth/forgot-password`, { email });
   }
 
   resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/reset-password`, { token, newPassword });
+    return this.http.post<{ message: string }>(`${this.apiUrl}/api/auth/reset-password`, { token, newPassword });
   }
 
   googleLogin(idToken: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/google`, { token: idToken })
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/auth/google`, { token: idToken })
       .pipe(tap(response => this.setCurrentUser(response)));
   }
 }

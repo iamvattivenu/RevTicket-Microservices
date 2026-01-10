@@ -403,7 +403,7 @@ export class CheckoutComponent implements OnInit {
       'netbanking': 'NET_BANKING'
     };
     const bookingData = {
-      userId: user.id,
+      userId: Number(user.id) || 1,
       showId: Number(this.showId),
       seatNumbers: this.selectedSeats.map(seat => seat.seatNumber),
       paymentMethod: methodMap[paymentMethod] || 'UPI'

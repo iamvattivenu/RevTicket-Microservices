@@ -881,30 +881,43 @@ export class AdminDashboardComponent implements OnInit {
       next: (users) => {
         this.allUsers = users;
       },
-      error: (err) => console.error('Error loading users:', err)
+      error: (err) => {
+        console.error('Error loading users:', err);
+        this.allUsers = [];
+      }
     });
   }
 
   blockUser(id: number): void {
+    console.log('Blocking user:', id);
     if (confirm('Block this user?')) {
       this.eventService.blockUser(id).subscribe({
-        next: () => {
-          alert('User blocked');
+        next: (response) => {
+          console.log('Block response:', response);
+          alert('User blocked successfully!');
           this.loadUsers();
         },
-        error: (err) => alert('Error blocking user')
+        error: (err) => {
+          console.error('Block error:', err);
+          alert('Error blocking user: ' + (err.error?.message || err.message));
+        }
       });
     }
   }
 
   unblockUser(id: number): void {
+    console.log('Unblocking user:', id);
     if (confirm('Unblock this user?')) {
       this.eventService.unblockUser(id).subscribe({
-        next: () => {
-          alert('User unblocked');
+        next: (response) => {
+          console.log('Unblock response:', response);
+          alert('User unblocked successfully!');
           this.loadUsers();
         },
-        error: (err) => alert('Error unblocking user')
+        error: (err) => {
+          console.error('Unblock error:', err);
+          alert('Error unblocking user: ' + (err.error?.message || err.message));
+        }
       });
     }
   }

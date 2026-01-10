@@ -7,9 +7,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { User } from '../../../core/models/user.model';
+import { ChangePasswordDialogComponent } from './change-password-dialog.component';
 
 @Component({
   selector: 'app-profile',
@@ -17,7 +19,7 @@ import { User } from '../../../core/models/user.model';
   imports: [
     CommonModule, ReactiveFormsModule, MatCardModule, 
     MatFormFieldModule, MatInputModule, MatButtonModule, 
-    MatIconModule, MatSnackBarModule
+    MatIconModule, MatSnackBarModule, MatDialogModule
   ],
   template: `
     <div class="profile-container">
@@ -188,7 +190,8 @@ export class ProfileComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private userService: UserService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.profileForm = this.fb.group({
       name: ['', Validators.required],
@@ -247,6 +250,21 @@ export class ProfileComponent implements OnInit {
   }
 
   changePassword(): void {
-    this.snackBar.open('Password change feature coming soon!', 'Close', { duration: 3000 });
+    const dialogRef = this.dialog.open(ChangePasswordDialogComponent, {
+      width: '450px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.userService.changePassword(result.currentPassword, result.newPassword).subscribe({
+          next: () => {
+            this.snackBar.open('Password changed successfully!', 'Close', { duration: 3000 });
+          },
+          error: (err) => {
+            this.snackBar.open(err.error?.message || 'Error changing password', 'Close', { duration: 3000 });
+          }
+        });
+      }
+    });
   }
 }

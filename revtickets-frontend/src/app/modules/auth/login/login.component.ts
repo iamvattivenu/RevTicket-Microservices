@@ -304,7 +304,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     const hash = window.location.hash;
-    if (hash) {
+    if (hash && hash.includes('id_token')) {
       const params = new URLSearchParams(hash.substring(1));
       const idToken = params.get('id_token');
       if (idToken) {

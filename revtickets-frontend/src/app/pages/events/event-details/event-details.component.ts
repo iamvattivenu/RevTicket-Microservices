@@ -589,7 +589,7 @@ export class EventDetailsComponent implements OnInit {
   }
 
   loadReviews(eventId: string): void {
-    this.http.get<any[]>(`${environment.apiUrl}/reviews/event/${eventId}`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/api/reviews/event/${eventId}`).subscribe({
       next: (reviews) => {
         this.reviews = reviews;
       },
@@ -610,17 +610,19 @@ export class EventDetailsComponent implements OnInit {
     const reviewData = {
       eventId: Number(this.event?.id),
       userId: user.id,
-      userName: user.name,
       rating: this.newReview.rating,
       comment: this.newReview.comment
     };
-    this.http.post(`${environment.apiUrl}/reviews`, reviewData).subscribe({
-      next: () => {
+    console.log('Submitting review:', reviewData);
+    this.http.post(`${environment.apiUrl}/api/reviews`, reviewData).subscribe({
+      next: (response) => {
+        console.log('Review submitted:', response);
         this.snackBar.open('Review submitted successfully!', 'Close', { duration: 3000 });
         this.newReview = { rating: 0, comment: '' };
         this.loadReviews(this.event?.id || '');
       },
       error: (err) => {
+        console.error('Error submitting review:', err);
         this.snackBar.open('Error submitting review', 'Close', { duration: 3000 });
       }
     });

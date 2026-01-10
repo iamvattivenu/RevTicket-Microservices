@@ -332,9 +332,9 @@ export class CreateEventComponent {
   }
 
   onSubmit(): void {
-    const eventRequest = {
+    const eventRequest: any = {
       title: this.event.title,
-      category: this.event.category,
+      category: this.event.category.toUpperCase(),
       language: this.event.language,
       genreOrType: this.event.genreOrType,
       description: this.event.description,
@@ -343,7 +343,8 @@ export class CreateEventComponent {
       durationMinutes: this.event.durationMinutes,
       posterUrl: this.event.posterUrl,
       rating: this.event.rating,
-      price: this.event.price
+      price: this.event.price,
+      isActive: true
     };
     
     if (this.isEditMode && this.event.id) {

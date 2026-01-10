@@ -1,0 +1,55 @@
+{
+  _id: ObjectId('6935b8b399f73356ee055ea2'),
+  eventId: Long('7'),
+  userId: Long('2'),
+  userName: 'VenuGopal',
+  rating: 5,
+  comment: 'Excellent',
+  createdAt: ISODate('2025-12-07T17:26:11.061Z'),
+  _class: 'com.revtickets.model.mongo.Review',
+  eventName: 'KGF'
+}
+{
+  _id: ObjectId('6935be2c99f73356ee055ea3'),
+  eventId: Long('7'),
+  userId: Long('2'),
+  userName: 'VenuGopal',
+  rating: 5,
+  comment: 'Nice',
+  createdAt: ISODate('2025-12-07T17:49:32.492Z'),
+  _class: 'com.revtickets.model.mongo.Review',
+  eventName: 'KGF'
+}
+{
+  _id: ObjectId('6935c1254934782a5f713c2f'),
+  eventId: Long('7'),
+  userId: Long('2'),
+  userName: 'VenuGopal',
+  rating: 5,
+  comment: 'Very Nice Movie',
+  createdAt: ISODate('2025-12-07T18:02:13.818Z'),
+  _class: 'com.revtickets.model.mongo.Review',
+  eventName: 'KGF'
+}
+{
+  _id: ObjectId('6935d2004934782a5f713c30'),
+  eventId: Long('4'),
+  userId: Long('2'),
+  userName: 'VenuGopal',
+  rating: 5,
+  comment: 'Block Buster',
+  createdAt: ISODate('2025-12-07T19:14:08.326Z'),
+  _class: 'com.revtickets.model.mongo.Review',
+  eventName: 'Avatar'
+}
+{
+  _id: ObjectId('693737fbab6bdd1908bed610'),
+  eventId: Long('3'),
+  eventName: 'Avengers',
+  userId: Long('7'),
+  userName: 'Venu',
+  rating: 5,
+  comment: 'MInd Blowing',
+  createdAt: ISODate('2025-12-08T20:41:31.818Z'),
+  _class: 'com.revtickets.model.mongo.Review'
+}
