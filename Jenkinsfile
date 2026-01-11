@@ -48,19 +48,6 @@ pipeline {
             }
         }
         
-        stage('Push Docker Images') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', 
-                                                     usernameVariable: 'DOCKER_USER', 
-                                                     passwordVariable: 'DOCKER_PASS')]) {
-                        bat "docker login -u %DOCKER_USER% -p %DOCKER_PASS%"
-                        bat "docker-compose push"
-                    }
-                }
-            }
-        }
-        
         stage('Deploy') {
             steps {
                 script {
